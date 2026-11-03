@@ -1,0 +1,594 @@
+/* =========================================================
+   VERA KART — estilos
+   ========================================================= */
+:root {
+  --yellow: #ffd93b;
+  --red: #ff3b3b;
+  --blue: #2e8bff;
+  --gold: #ffcc33;
+  --dark: #12142a;
+  --panel: rgba(18, 20, 42, 0.72);
+  --font: "Trebuchet MS", "Segoe UI", Verdana, system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box; margin: 0; padding: 0;
+  user-select: none; -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* v2.0: sin zoom ni scroll en pantallas táctiles */
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #8fd0ff;
+  font-family: var(--font);
+  color: #fff;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+#game-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.hidden { display: none !important; }
+
+/* ---------- Pantallas ---------- */
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: radial-gradient(ellipse at center, rgba(20, 30, 80, 0.35) 0%, rgba(10, 12, 40, 0.8) 100%);
+  backdrop-filter: blur(3px);
+  touch-action: pan-y;
+}
+
+#loading {
+  flex-direction: column;
+  background: linear-gradient(180deg, #1b2a6b, #0b0e2a);
+  z-index: 60;
+  gap: 18px;
+  backdrop-filter: none;
+}
+.logo-small {
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: var(--yellow);
+  text-shadow: 0 4px 0 #b8451a, 0 8px 18px rgba(0,0,0,.5);
+  font-style: italic;
+}
+#loading-text { font-size: 18px; opacity: .85; max-width: 80vw; }
+.loader-bar { width: min(360px, 70vw); height: 14px; border-radius: 10px; background: rgba(255,255,255,.15); overflow: hidden; border: 2px solid rgba(255,255,255,.35); }
+#loader-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--yellow), #ff7a1a); transition: width .2s; }
+
+.menu-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+.title {
+  font-size: clamp(54px, 11vw, 132px);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 4px;
+  line-height: 1;
+  color: var(--yellow);
+  -webkit-text-stroke: 4px #1a1a3a;
+  paint-order: stroke fill;
+  text-shadow:
+    0 5px 0 #e0561a,
+    0 10px 0 #a8330e,
+    0 16px 30px rgba(0, 0, 0, .65);
+  animation: titlePulse 2.4s ease-in-out infinite;
+}
+.title.mid { font-size: clamp(40px, 8vw, 84px); }
+
+@keyframes titlePulse {
+  0%, 100% { transform: scale(1) rotate(-1deg); }
+  50% { transform: scale(1.04) rotate(1deg); }
+}
+
+.subtitle {
+  margin-top: 8px;
+  font-size: clamp(14px, 2.2vw, 22px);
+  letter-spacing: 3px;
+  font-weight: 700;
+  text-shadow: 0 2px 6px rgba(0,0,0,.6);
+}
+
+.pilot-label { font-size: 11px; letter-spacing: 3px; color: var(--yellow); font-weight: 800; }
+.pilot-name { font-size: 20px; font-weight: 900; letter-spacing: 1px; }
+
+.btn {
+  font-family: var(--font);
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 2px;
+  padding: 14px 44px;
+  min-width: 260px;
+  border: 4px solid #1a1a3a;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform .1s, filter .1s;
+  color: #1a1a3a;
+}
+.btn.primary { background: linear-gradient(180deg, #ffe45c, #ffb21a); box-shadow: 0 7px 0 #b3560a, 0 12px 22px rgba(0,0,0,.4); font-size: 28px; }
+.btn.secondary { background: linear-gradient(180deg, #ffffff, #cfd8ff); box-shadow: 0 5px 0 #6672b8, 0 10px 18px rgba(0,0,0,.35); font-size: 18px; padding: 10px 30px; }
+.btn:hover:not(:disabled) { transform: translateY(-2px) scale(1.03); filter: brightness(1.06); }
+.btn:active:not(:disabled) { transform: translateY(4px); }
+.btn:disabled { opacity: .5; cursor: wait; }
+
+/* =========================================================
+   MENÚ 3D (v2.0): el kart elegido gira en el centro, el circuito se ve detrás
+   ========================================================= */
+#menu {
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  background:
+    linear-gradient(180deg, rgba(8, 10, 36, .78) 0%, rgba(8, 10, 36, 0) 30%, rgba(8, 10, 36, 0) 52%, rgba(8, 10, 36, .86) 100%);
+  backdrop-filter: none;
+  pointer-events: none;           /* se puede ver (y tocar) la escena detrás */
+}
+#menu button { pointer-events: auto; }
+
+.menu-top { display: flex; flex-direction: column; align-items: center; }
+#menu .title { font-size: clamp(44px, 8vw, 104px); }
+
+.menu-middle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 0;
+}
+.menu-spacer { flex: 1; }
+
+.arrow-btn {
+  width: clamp(56px, 9vw, 92px);
+  height: clamp(56px, 9vw, 92px);
+  border-radius: 50%;
+  border: 4px solid #1a1a3a;
+  background: linear-gradient(180deg, #ffe45c, #ffb21a);
+  color: #1a1a3a;
+  font-size: clamp(24px, 4vw, 40px);
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #b3560a, 0 10px 20px rgba(0,0,0,.4);
+  transition: transform .1s, filter .1s;
+}
+.arrow-btn:hover { transform: scale(1.1); filter: brightness(1.08); }
+.arrow-btn:active { transform: translateY(4px) scale(1); }
+
+.menu-bottom { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
+.char-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 40px 10px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 3px solid var(--yellow);
+  box-shadow: 0 6px 0 rgba(0,0,0,.35);
+  min-width: min(340px, 86vw);
+}
+.char-card.swap { animation: swap .35s ease-out; }
+@keyframes swap {
+  0% { transform: scale(.85); opacity: .2; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.char-name { font-size: clamp(26px, 4.2vw, 40px); font-weight: 900; letter-spacing: 1px; text-shadow: 0 3px 0 #000; }
+.char-tag { font-size: 13px; opacity: .85; margin-top: 2px; }
+.char-dots { display: flex; gap: 8px; margin-top: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.35); }
+.dot.on { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+
+.menu-buttons { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.track-info { font-size: 13px; letter-spacing: 1px; font-weight: 700; opacity: .9; text-shadow: 0 2px 4px #000; }
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 26px;
+  padding: 10px 20px;
+  border-radius: 14px;
+  background: var(--panel);
+  font-size: 13px;
+  text-align: left;
+}
+.controls-grid div:nth-child(n+5) { grid-column: 1 / -1; text-align: center; }
+kbd {
+  display: inline-block;
+  min-width: 24px;
+  padding: 2px 7px;
+  margin: 0 1px;
+  border-radius: 6px;
+  background: #fff;
+  color: #1a1a3a;
+  font-weight: 900;
+  font-size: 12px;
+  text-align: center;
+  box-shadow: 0 2px 0 #7b84b8;
+}
+.tip { font-size: 12px; opacity: .85; max-width: 540px; text-shadow: 0 2px 4px #000; }
+
+/* ---------- HUD ---------- */
+#hud { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+#hud > * { pointer-events: none; }
+
+#pilot-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 22px 8px 16px;
+  border-radius: 12px;
+  background: var(--panel);
+  border-left: 6px solid var(--yellow);
+  box-shadow: 0 4px 0 rgba(0,0,0,.3);
+}
+#pilot-badge .pilot-name { font-size: 24px; text-shadow: 0 2px 0 #000; }
+
+#race-info {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  align-items: flex-end;
+}
+.info-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 4px 16px;
+  border-radius: 12px;
+  background: var(--panel);
+  min-width: 150px;
+  border-right: 6px solid var(--blue);
+}
+.info-box.record { border-right-color: var(--gold); }
+.info-box.record .info-value { color: var(--gold); }
+.info-box.small .info-value { font-size: 18px; }
+.info-label { font-size: 10px; letter-spacing: 2px; opacity: .8; font-weight: 800; }
+.info-value { font-size: 26px; font-weight: 900; font-variant-numeric: tabular-nums; text-shadow: 0 2px 0 #000; }
+.info-value.record-hit { animation: recordHit 1.6s ease-out; }
+@keyframes recordHit {
+  0%, 100% { transform: scale(1); color: var(--gold); }
+  15% { transform: scale(1.5); color: #fff; text-shadow: 0 0 18px var(--gold), 0 0 34px var(--gold); }
+  60% { transform: scale(1.25); color: var(--gold); text-shadow: 0 0 14px var(--gold); }
+}
+
+#minimap {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  width: 190px;
+  height: 190px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 3px solid rgba(255,255,255,.25);
+}
+
+#speedometer {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  width: 280px;
+  padding: 6px 10px 10px;
+  border-radius: 20px;
+  background: var(--panel);
+  border: 3px solid rgba(255,255,255,.25);
+  text-align: center;
+  transition: box-shadow .15s, border-color .15s;
+}
+#speedometer.boosting { border-color: #5ee1ff; box-shadow: 0 0 28px 6px rgba(80, 210, 255, .8); }
+#speedo-svg { width: 100%; display: block; }
+#speedo-needle { transition: none; }
+#speed-readout { margin-top: -26px; position: relative; display: flex; align-items: baseline; justify-content: center; gap: 6px; }
+#speed-value { font-size: 44px; font-weight: 900; font-variant-numeric: tabular-nums; text-shadow: 0 3px 0 #000; min-width: 3ch; text-align: right; }
+#speed-unit { font-size: 15px; font-weight: 800; opacity: .8; }
+#boost-bar { margin-top: 4px; height: 8px; border-radius: 6px; background: rgba(255,255,255,.15); overflow: hidden; }
+#boost-fill { height: 100%; width: 0; background: linear-gradient(90deg, #4fd2ff, #ff9a1a); }
+
+#countdown {
+  position: absolute;
+  top: 28%;
+  width: 100%;
+  text-align: center;
+  font-size: clamp(90px, 20vw, 220px);
+  font-weight: 900;
+  font-style: italic;
+  color: var(--yellow);
+  -webkit-text-stroke: 5px #1a1a3a;
+  paint-order: stroke fill;
+  text-shadow: 0 8px 0 #b8451a, 0 14px 30px rgba(0,0,0,.6);
+  opacity: 0;
+}
+#countdown.pop { animation: pop .9s ease-out forwards; }
+@keyframes pop {
+  0% { transform: scale(2.2); opacity: 0; }
+  25% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(.9); opacity: .0; }
+}
+
+#toast {
+  position: absolute;
+  top: 18%;
+  width: 100%;
+  text-align: center;
+  font-size: clamp(26px, 5vw, 54px);
+  font-weight: 900;
+  font-style: italic;
+  color: #fff;
+  -webkit-text-stroke: 3px #1a1a3a;
+  paint-order: stroke fill;
+  text-shadow: 0 5px 0 rgba(0,0,0,.4);
+  opacity: 0;
+}
+#toast.show { animation: toast 1.6s ease-out; }
+@keyframes toast {
+  0% { opacity: 0; transform: translateY(20px) scale(.8); }
+  12% { opacity: 1; transform: translateY(0) scale(1.08); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
+#wrongway {
+  position: absolute;
+  top: 38%;
+  width: 100%;
+  text-align: center;
+  font-size: clamp(30px, 6vw, 64px);
+  font-weight: 900;
+  color: var(--red);
+  -webkit-text-stroke: 3px #fff;
+  paint-order: stroke fill;
+  animation: blink .6s steps(2) infinite;
+}
+@keyframes blink { 50% { opacity: .15; } }
+
+#btn-mute {
+  position: absolute;
+  top: 100px;
+  left: 16px;
+  pointer-events: auto !important;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.4);
+  background: var(--panel);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* ---------- Efecto de nuevo récord (v2.0) ---------- */
+#record-flash {
+  position: fixed; inset: 0; z-index: 40; pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse at center, rgba(255, 220, 80, 0) 30%, rgba(255, 200, 40, .75) 100%);
+}
+#record-flash.go { animation: recFlash 2.2s ease-out; }
+@keyframes recFlash {
+  0% { opacity: 0; } 10% { opacity: 1; } 35% { opacity: .35; } 55% { opacity: .85; } 100% { opacity: 0; }
+}
+#record-banner {
+  position: fixed; left: 0; right: 0; top: 34%; z-index: 55; pointer-events: none; text-align: center;
+  font-size: clamp(34px, 8vw, 96px); font-weight: 900; font-style: italic;
+  color: var(--gold); -webkit-text-stroke: 5px #1a1a3a; paint-order: stroke fill;
+  text-shadow: 0 6px 0 #a8330e, 0 0 36px rgba(255, 204, 51, .9);
+  opacity: 0;
+}
+#record-banner.go { animation: recBanner 3.4s ease-out; }
+@keyframes recBanner {
+  0% { opacity: 0; transform: scale(.3) rotate(-6deg); }
+  12% { opacity: 1; transform: scale(1.15) rotate(2deg); }
+  22% { transform: scale(1) rotate(-1deg); }
+  80% { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 0; transform: scale(1.1); }
+}
+#confetti { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 56; pointer-events: none; }
+
+/* ---------- Resultados ---------- */
+#results-list { display: flex; flex-direction: column; gap: 8px; min-width: min(420px, 90vw); }
+.res-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  background: var(--panel);
+  font-weight: 800; font-size: 20px;
+  text-align: left;
+}
+.res-row.me { border: 3px solid var(--yellow); background: rgba(255, 217, 59, .18); }
+.res-row .rp { width: 40px; font-size: 26px; color: var(--yellow); }
+.res-row .rn { flex: 1; }
+.res-row .rt { font-variant-numeric: tabular-nums; opacity: .9; }
+.results-record {
+  font-size: clamp(18px, 3vw, 28px); font-weight: 900; color: var(--gold);
+  text-shadow: 0 0 16px rgba(255, 204, 51, .8), 0 2px 0 #000; animation: titlePulse 1.4s ease-in-out infinite;
+}
+
+#error-text { max-width: 560px; font-size: 18px; line-height: 1.5; background: var(--panel); padding: 18px; border-radius: 12px; }
+
+/* =========================================================
+   CONTROLES TÁCTILES (v2.0) — solo se ven si el dispositivo es táctil
+   ========================================================= */
+.touch-only { display: none; }
+body.is-touch .touch-only { display: flex; }
+body.is-touch .no-touch { display: none !important; }
+
+#touch-controls {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 0;
+  pointer-events: none;
+  touch-action: none;
+  z-index: 15;
+}
+body.is-touch #touch-controls { display: block; }
+#touch-controls .tc-left, #touch-controls .tc-right {
+  position: absolute;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  display: flex;
+  pointer-events: auto;
+  touch-action: none;
+}
+.tc-left { left: calc(18px + env(safe-area-inset-left)); gap: 16px; }
+.tc-right {
+  right: calc(18px + env(safe-area-inset-right));
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+.tc-pedals { display: flex; gap: 14px; align-items: flex-end; }
+
+.tbtn {
+  font-family: var(--font);
+  font-weight: 900;
+  color: #fff;
+  border: 3px solid rgba(255, 255, 255, .55);
+  background: rgba(30, 36, 80, .45);       /* translúcidos */
+  backdrop-filter: blur(2px);
+  border-radius: 50%;
+  touch-action: none;
+  pointer-events: auto;
+  text-shadow: 0 2px 0 rgba(0,0,0,.6);
+  box-shadow: 0 4px 14px rgba(0,0,0,.35);
+  transition: transform .06s, background .06s;
+  -webkit-appearance: none;
+}
+.tbtn.pressed { transform: scale(.92); background: rgba(255, 255, 255, .45); }
+.tbtn.steer { width: 92px; height: 92px; font-size: 38px; border-radius: 26px; }
+.tbtn.gas { width: 112px; height: 112px; font-size: 14px; letter-spacing: 1px; background: rgba(46, 220, 120, .42); border-color: rgba(160, 255, 200, .8); }
+.tbtn.brake { width: 80px; height: 80px; font-size: 12px; background: rgba(255, 70, 70, .42); border-color: rgba(255, 170, 170, .8); }
+.tbtn.drift { width: 128px; height: 128px; font-size: 16px; letter-spacing: 1px; background: rgba(46, 139, 255, .45); border-color: rgba(170, 210, 255, .85); margin-right: 8px; }
+.tbtn.gas.pressed { background: rgba(46, 220, 120, .8); }
+.tbtn.brake.pressed { background: rgba(255, 70, 70, .8); }
+.tbtn.drift.pressed { background: rgba(46, 139, 255, .85); }
+
+.hud-btn {
+  position: absolute;
+  pointer-events: auto !important;
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.45);
+  background: var(--panel);
+  color: #fff;
+  font-size: 20px;
+  align-items: center; justify-content: center;
+  touch-action: none;
+}
+#btn-pause { top: 100px; left: 66px; }
+#btn-reset { top: 100px; left: 120px; }
+
+/* Disposición compacta del HUD en táctil (landscape) */
+body.is-touch #pilot-badge { top: 8px; left: 8px; padding: 4px 14px 4px 10px; }
+body.is-touch #pilot-badge .pilot-name { font-size: 16px; }
+body.is-touch #race-info { top: 8px; right: 8px; gap: 4px; flex-direction: row; align-items: flex-start; }
+body.is-touch .info-box {
+  min-width: 66px; padding: 2px 8px; align-items: center;
+  border-right: none; border-bottom: 3px solid var(--blue);
+}
+body.is-touch .info-box.record { border-bottom-color: var(--gold); }
+body.is-touch .info-box.small { display: none; }
+body.is-touch .info-value { font-size: 16px; }
+body.is-touch .info-label { font-size: 7px; letter-spacing: 1px; }
+body.is-touch #minimap { left: 8px; bottom: auto; top: 64px; width: 112px; height: 112px; }
+body.is-touch #btn-mute { top: 184px; left: 8px; width: 36px; height: 36px; font-size: 15px; }
+body.is-touch #btn-pause { top: 184px; left: 50px; width: 36px; height: 36px; font-size: 15px; }
+body.is-touch #btn-reset { top: 184px; left: 92px; width: 36px; height: 36px; font-size: 15px; }
+/* el velocímetro va arriba al centro para no tapar el kart ni los botones */
+body.is-touch #speedometer {
+  right: auto; left: 50%; transform: translateX(-50%);
+  top: 6px; bottom: auto; width: 150px; padding: 2px 6px 4px;
+}
+body.is-touch #speed-value { font-size: 24px; min-width: 2.6ch; }
+body.is-touch #speed-unit { font-size: 10px; }
+body.is-touch #speed-readout { margin-top: -14px; }
+body.is-touch #boost-bar { height: 5px; margin-top: 2px; }
+body.is-touch #countdown { top: 18%; }
+body.is-touch .tbtn.drift { width: 112px; height: 112px; font-size: 14px; }
+body.is-touch .tbtn.gas { width: 100px; height: 100px; font-size: 13px; }
+body.is-touch .tbtn.brake { width: 72px; height: 72px; font-size: 11px; }
+body.is-touch .tbtn.steer { width: 84px; height: 84px; }
+
+/* Aviso de rotación (móvil en vertical) */
+#rotate-hint {
+  display: none;
+  position: fixed; inset: 0; z-index: 100;
+  flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  background: rgba(10, 12, 40, .94);
+  font-size: 22px; font-weight: 800; text-align: center; padding: 30px;
+}
+#rotate-hint span { font-size: 64px; }
+@media (orientation: portrait) {
+  body.is-touch #rotate-hint { display: flex; }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 760px) {
+  #speedometer { width: 200px; }
+  #speed-value { font-size: 32px; }
+  #minimap { width: 120px; height: 120px; }
+  .info-box { min-width: 110px; padding: 3px 10px; }
+  .info-value { font-size: 20px; }
+  #pilot-badge .pilot-name { font-size: 18px; }
+  .controls-grid { grid-template-columns: 1fr; }
+  .controls-grid div:nth-child(n+5) { text-align: left; }
+  .char-card { padding: 6px 24px 8px; }
+}
+@media (max-height: 700px) {
+  #menu .tip, #menu .controls-grid { display: none; }
+}
+@media (max-height: 560px) {
+  #menu .tip, #menu .controls-grid { display: none; }
+  #menu .subtitle { display: none; }
+  #menu .btn.primary { font-size: 20px; padding: 8px 28px; min-width: 200px; }
+  #menu .btn.secondary { font-size: 14px; padding: 6px 18px; min-width: 150px; }
+  .char-card { padding: 4px 24px 6px; }
+  .char-name { font-size: 22px; }
+  .char-tag { display: none; }
+  .menu-bottom { gap: 6px; }
+}
+
+
+
+
+/* ---------- Multijugador online ---------- */
+.net-status { font-size: 12px; font-weight: 800; letter-spacing: .04em; padding: 4px 12px; border-radius: 999px;
+  background: rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.25); text-shadow: 0 1px 3px #000; }
+.net-status[data-state="online"] { border-color: #2ee6a6; color: #b8ffe6; }
+.net-status[data-state="error"], .net-status[data-state="full"] { border-color: #ff7a7a; color: #ffd0d0; }
+.btn.small { font-size: 13px; padding: 8px 16px; }
+#menu .net-status, #menu #btn-invite { pointer-events: auto; }
+@media (max-height: 560px) { #btn-invite { padding: 5px 12px; font-size: 11px; } }
+
+/* Indicador de conexión multijugador durante la carrera */
+.net-chip { position: fixed; left: 50%; bottom: calc(8px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+  min-width: 46px; text-align: center; font-size: 13px; font-weight: 900; letter-spacing: .04em; padding: 4px 12px;
+  border-radius: 999px; background: rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.3); color: #fff; text-shadow: 0 1px 3px #000;
+  pointer-events: none; z-index: 12; }
+.net-chip[data-state="online"] { border-color: #2ee6a6; color: #b8ffe6; }
+.net-chip[data-state="error"], .net-chip[data-state="full"] { border-color: #ff7a7a; color: #ffd0d0; }
+.net-chip.hidden { display: none; }

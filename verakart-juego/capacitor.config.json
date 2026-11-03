@@ -1,0 +1,13 @@
+{
+  "appId": "com.javiervera.verakart",
+  "appName": "VERA KART",
+  "webDir": "www",
+  "backgroundColor": "#12142a",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#12142a",
+    "allowsLinkPreview": false,
+    "scrollEnabled": false,
+    "preferredContentMode": "mobile"
+  }
+}

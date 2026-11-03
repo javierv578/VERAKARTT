@@ -1,0 +1,20 @@
+{
+  "name": "verakart",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VERA KART - juego de karts 3D (Three.js), PWA y app iOS con Capacitor",
+  "scripts": {
+    "dev": "python3 -m http.server 8000 --directory www",
+    "ios:add": "npx cap add ios && bash configure-ios.sh && npx cap sync ios",
+    "sync": "npx cap sync ios",
+    "open": "npx cap open ios",
+    "ios": "npx cap sync ios && npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/ios": "^8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3"
+  }
+}
